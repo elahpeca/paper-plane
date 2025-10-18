@@ -185,17 +185,26 @@ impl Row {
 
         dialog.choose(
             gio::Cancellable::NONE,
-            clone!(#[weak(rename_to = obj)] self, move |response| {
-                if response == "yes" {
-                    if let Ok(message) = obj.message().downcast::<model::Message>() {
-                        utils::spawn(async move {
-                            if let Err(e) = message.delete(revoke).await {
-                                log::warn!("Error deleting a message (revoke = {}): {:?}", revoke, e);
-                            }
-                        });
+            clone!(
+                #[weak(rename_to = obj)]
+                self,
+                move |response| {
+                    if response == "yes" {
+                        if let Ok(message) = obj.message().downcast::<model::Message>() {
+                            utils::spawn(async move {
+                                if let Err(e) = message.delete(revoke).await {
+                                    log::warn!(
+                                        "Error deleting a message (revoke = {}): {:?}",
+                                        revoke,
+                                        e
+                                    );
+                                }
+                            });
+                        }
                     }
                 }
-            }));
+            ),
+        );
     }
 
     pub(crate) fn message(&self) -> glib::Object {

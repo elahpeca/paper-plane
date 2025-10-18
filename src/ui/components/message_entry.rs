@@ -117,6 +117,8 @@ mod imp {
             key_events.connect_key_pressed(clone!(
                 #[weak]
                 obj,
+                #[upgrade_or]
+                glib::Propagation::Proceed,
                 move |_, key, _, modifier| {
                     if !modifier.contains(gdk::ModifierType::CONTROL_MASK)
                         && !modifier.contains(gdk::ModifierType::SHIFT_MASK)
