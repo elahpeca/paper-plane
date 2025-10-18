@@ -70,7 +70,7 @@ mod imp {
 
                 let source_id = glib::timeout_add_seconds_local(
                     1,
-                    clone!(@weak obj => @default-return glib::ControlFlow::Break, move || {
+                    clone!(#[weak] obj, move || {
                         let imp = obj.imp();
 
                         imp.set_countdown(obj.countdown() - 1);

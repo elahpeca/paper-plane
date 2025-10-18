@@ -247,35 +247,46 @@ impl Password {
 
         dialog.choose(
             gio::Cancellable::NONE,
-            clone!(@weak self as obj => move |response| {
-                if response == "delete" {
-                    obj.freeze(true);
-                    let client_id = obj.model().unwrap().auth().unwrap().client().unwrap().id();
+            clone!(
+                #[weak(rename_to = obj)]
+                self,
+                move |response| {
+                    if response == "delete" {
+                        obj.freeze(true);
+                        let client_id = obj.model().unwrap().auth().unwrap().client().unwrap().id();
 
-                    utils::spawn(clone!(@weak obj => async move {
-                        let result = tdlib::functions::delete_account(
-                            "Cloud password lost and not recoverable".into(),
-                            String::new(),
-                            client_id,
-                        )
-                        .await;
+                        utils::spawn(clone!(
+                            #[weak]
+                            obj,
+                            async move {
+                                let result = tdlib::functions::delete_account(
+                                    "Cloud password lost and not recoverable".into(),
+                                    String::new(),
+                                    client_id,
+                                )
+                                .await;
 
-                        // Just unfreeze in case of an error, else stay frozen until we are
-                        // redirected to the welcome page.
-                        if let Err(e) = result {
-                            log::error!("Failed to delete account: {e:?}");
-                            utils::show_toast(
-                                &obj,
-                                gettext_f("Failed to delete account: {error}", &[("error", &e.message)])
-                            );
+                                // Just unfreeze in case of an error, else stay frozen until we are
+                                // redirected to the welcome page.
+                                if let Err(e) = result {
+                                    log::error!("Failed to delete account: {e:?}");
+                                    utils::show_toast(
+                                        &obj,
+                                        gettext_f(
+                                            "Failed to delete account: {error}",
+                                            &[("error", &e.message)],
+                                        ),
+                                    );
 
-                            obj.freeze(false);
-                        }
-                    }));
-                } else {
-                    obj.imp().password_entry_row.grab_focus();
+                                    obj.freeze(false);
+                                }
+                            }
+                        ));
+                    } else {
+                        obj.imp().password_entry_row.grab_focus();
+                    }
                 }
-            }),
+            ),
         );
     }
 
@@ -325,18 +336,24 @@ impl Password {
 
         dialog.choose(
             gio::Cancellable::NONE,
-            clone!(@weak self as obj => move |_| {
-                obj.imp()
-                    .password_recovery_code_entry_row
-                    .grab_focus();
-            }),
+            clone!(
+                #[weak(rename_to = obj)]
+                self,
+                move |_| {
+                    obj.imp().password_recovery_code_entry_row.grab_focus();
+                }
+            ),
         );
     }
 
     pub(crate) fn focus_password_entry_row(&self) {
-        glib::idle_add_local_once(clone!(@weak self as obj => move || {
-            obj.imp().password_entry_row.grab_focus();
-        }));
+        glib::idle_add_local_once(clone!(
+            #[weak(rename_to = obj)]
+            self,
+            move || {
+                obj.imp().password_entry_row.grab_focus();
+            }
+        ));
     }
 
     fn freeze(&self, freeze: bool) {

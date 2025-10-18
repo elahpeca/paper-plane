@@ -185,7 +185,7 @@ impl Row {
 
         dialog.choose(
             gio::Cancellable::NONE,
-            clone!(@weak self as obj => move |response| {
+            clone!(#[weak(rename_to = obj)] self, move |response| {
                 if response == "yes" {
                     if let Ok(message) = obj.message().downcast::<model::Message>() {
                         utils::spawn(async move {
