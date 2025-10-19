@@ -91,7 +91,8 @@ mod imp {
 
 glib::wrapper! {
     pub(crate) struct Sticker(ObjectSubclass<imp::Sticker>)
-        @extends gtk::Widget;
+        @extends gtk::Widget,
+        @implements gtk::Accessible, gtk::Buildable, gtk::ConstraintTarget;
 }
 
 impl Sticker {

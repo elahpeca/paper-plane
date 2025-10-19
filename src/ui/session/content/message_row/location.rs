@@ -111,7 +111,8 @@ mod imp {
 
 glib::wrapper! {
     pub(crate) struct MessageLocation(ObjectSubclass<imp::MessageLocation>)
-        @extends gtk::Widget, ui::MessageBase;
+    @extends gtk::Widget, ui::MessageBase,
+    @implements gtk::Accessible, gtk::Buildable, gtk::ConstraintTarget;
 }
 
 impl MessageBaseExt for MessageLocation {

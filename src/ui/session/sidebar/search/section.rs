@@ -59,7 +59,8 @@ mod imp {
 }
 
 glib::wrapper! {
-    pub(crate) struct Section(ObjectSubclass<imp::Section>);
+    pub(crate) struct Section(ObjectSubclass<imp::Section>)
+        @implements gtk::Accessible, gtk::Buildable, gtk::ConstraintTarget;
 }
 
 impl Section {

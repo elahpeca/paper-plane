@@ -129,7 +129,8 @@ mod imp {
 
 glib::wrapper! {
     pub(crate) struct Row(ObjectSubclass<imp::Row>)
-        @extends gtk::Widget;
+    @extends gtk::Widget,
+    @implements gtk::Accessible, gtk::Buildable, gtk::ConstraintTarget;
 }
 
 #[gtk::template_callbacks]

@@ -137,5 +137,6 @@ mod imp {
 
 glib::wrapper! {
     pub(crate) struct ChatList(ObjectSubclass<imp::ChatList>)
-        @extends gtk::Widget;
+    @extends gtk::Widget,
+    @implements gtk::Accessible, gtk::Buildable, gtk::ConstraintTarget;
 }
