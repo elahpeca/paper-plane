@@ -81,7 +81,15 @@ mod imp {
 }
 
 glib::wrapper! {
-    pub(crate) struct AnimatedBin(ObjectSubclass<imp::AnimatedBin>) @extends gtk::Widget;
+    pub(crate) struct AnimatedBin(ObjectSubclass<imp::AnimatedBin>)
+        @extends gtk::Widget,
+        @implements gtk::Accessible, gtk::Buildable, gtk::ConstraintTarget;
+}
+
+impl Default for AnimatedBin {
+    fn default() -> Self {
+        glib::Object::builder().build()
+    }
 }
 
 impl AnimatedBin {

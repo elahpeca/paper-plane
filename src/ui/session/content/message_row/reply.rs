@@ -70,9 +70,13 @@ mod imp {
             self.message_label.set_label(&gettext("Loading…"));
 
             let obj = self.obj();
-            utils::spawn(clone!(@weak obj => async move {
-                obj.load_replied_message().await;
-            }));
+            utils::spawn(clone!(
+                #[weak]
+                obj,
+                async move {
+                    obj.load_replied_message().await;
+                }
+            ));
         }
 
         fn dispose(&self) {
@@ -85,7 +89,8 @@ mod imp {
 
 glib::wrapper! {
     pub(crate) struct MessageReply(ObjectSubclass<imp::MessageReply>)
-        @extends gtk::Widget;
+    @extends gtk::Widget,
+    @implements gtk::Accessible, gtk::Buildable, gtk::ConstraintTarget;
 }
 
 impl MessageReply {

@@ -82,11 +82,15 @@ mod imp {
             if let Some(state) = model.state() {
                 obj.update_state(state);
             }
-            model.connect_state_notify(clone!(@weak obj => move |auth| {
-                if let Some(state) = auth.state() {
-                    obj.update_state(state);
+            model.connect_state_notify(clone!(
+                #[weak]
+                obj,
+                move |auth| {
+                    if let Some(state) = auth.state() {
+                        obj.update_state(state);
+                    }
                 }
-            }));
+            ));
 
             self.model.set(Some(model));
             obj.notify_model();
@@ -135,11 +139,15 @@ impl Login {
 
         dialog.choose(
             gio::Cancellable::NONE,
-            clone!(@weak model => move |response| {
-                if response == "reset" {
-                    model.reset();
+            clone!(
+                #[weak]
+                model,
+                move |response| {
+                    if response == "reset" {
+                        model.reset();
+                    }
                 }
-            }),
+            ),
         );
     }
 

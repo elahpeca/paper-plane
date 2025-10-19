@@ -87,7 +87,8 @@ mod imp {
 
 glib::wrapper! {
     pub(crate) struct MessagePhoto(ObjectSubclass<imp::MessagePhoto>)
-        @extends gtk::Widget, ui::MessageBase;
+    @extends gtk::Widget, ui::MessageBase,
+    @implements gtk::Accessible, gtk::Buildable, gtk::ConstraintTarget;
 }
 
 impl ui::MessageBaseExt for MessagePhoto {
@@ -129,10 +130,13 @@ impl ui::MessageBaseExt for MessagePhoto {
         imp.binding.replace(Some(caption_binding));
 
         // Load photo
-        let handler_id =
-            message.connect_content_notify(clone!(@weak self as obj => move |message| {
+        let handler_id = message.connect_content_notify(clone!(
+            #[weak(rename_to = obj)]
+            self,
+            move |message| {
                 obj.update_photo(message);
-            }));
+            }
+        ));
         imp.handler_id.replace(Some(handler_id));
         self.update_photo(message);
 
@@ -182,9 +186,15 @@ impl MessagePhoto {
 
                 let file_id = photo_size.photo.id;
                 let session = message.chat_().session_();
-                utils::spawn(clone!(@weak self as obj, @weak session => async move {
-                    obj.download_photo(file_id, &session).await;
-                }));
+                utils::spawn(clone!(
+                    #[weak(rename_to = obj)]
+                    self,
+                    #[weak]
+                    session,
+                    async move {
+                        obj.download_photo(file_id, &session).await;
+                    }
+                ));
             }
         }
     }
@@ -202,27 +212,31 @@ impl MessagePhoto {
 
     fn load_photo(&self, path: String) {
         if let Some(message_id) = self.message_id() {
-            utils::spawn(clone!(@weak self as obj => async move {
-                let result = gio::spawn_blocking(move || utils::decode_image_from_path(&path))
-                    .await
-                    .unwrap();
+            utils::spawn(clone!(
+                #[weak(rename_to = obj)]
+                self,
+                async move {
+                    let result = gio::spawn_blocking(move || utils::decode_image_from_path(&path))
+                        .await
+                        .unwrap();
 
-                // Check if the current message id is the same as the one at
-                // the time of the request. It may be changed because of the
-                // ListView recycling while decoding the image. It may also
-                // that the message has been already removed from the history
-                // and the WeakRef is None (after successful sent)
-                if obj.message_id().filter(|id| *id == message_id).is_some() {
-                    match result {
-                        Ok(texture) => {
-                            obj.imp().picture.set_paintable(Some(&texture));
-                        }
-                        Err(e) => {
-                            log::warn!("Error decoding a photo: {e:?}");
+                    // Check if the current message id is the same as the one at
+                    // the time of the request. It may be changed because of the
+                    // ListView recycling while decoding the image. It may also
+                    // that the message has been already removed from the history
+                    // and the WeakRef is None (after successful sent)
+                    if obj.message_id().filter(|id| *id == message_id).is_some() {
+                        match result {
+                            Ok(texture) => {
+                                obj.imp().picture.set_paintable(Some(&texture));
+                            }
+                            Err(e) => {
+                                log::warn!("Error decoding a photo: {e:?}");
+                            }
                         }
                     }
                 }
-            }));
+            ));
         }
     }
 }

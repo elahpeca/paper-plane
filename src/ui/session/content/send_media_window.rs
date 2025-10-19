@@ -66,15 +66,22 @@ mod imp {
 
             let obj = self.obj();
 
-            self.caption_entry
-                .connect_activate(clone!(@weak obj => move |_| {
-                    obj.activate_action("send-media-window.send-message", None).unwrap()
-                }));
+            self.caption_entry.connect_activate(clone!(
+                #[weak]
+                obj,
+                move |_| {
+                    obj.activate_action("send-media-window.send-message", None)
+                        .unwrap()
+                }
+            ));
 
-            self.caption_entry
-                .connect_emoji_button_press(clone!(@weak obj => move |_, button| {
+            self.caption_entry.connect_emoji_button_press(clone!(
+                #[weak]
+                obj,
+                move |_, button| {
                     obj.show_emoji_chooser(&button);
-                }));
+                }
+            ));
         }
 
         fn dispose(&self) {
@@ -111,7 +118,8 @@ mod imp {
 
 glib::wrapper! {
     pub(crate) struct SendMediaWindow(ObjectSubclass<imp::SendMediaWindow>)
-        @extends gtk::Widget, gtk::Window, adw::Window;
+    @extends gtk::Widget, gtk::Window, adw::Window,
+    @implements gtk::Accessible, gtk::Buildable, gtk::ConstraintTarget, gtk::Native, gtk::Root, gtk::ShortcutManager;
 }
 
 impl SendMediaWindow {
@@ -142,12 +150,20 @@ impl SendMediaWindow {
         if emoji_chooser.is_none() {
             let chooser = gtk::EmojiChooser::new();
             chooser.set_parent(parent);
-            chooser.connect_emoji_picked(clone!(@weak self as obj => move |_, emoji| {
-                obj.imp().caption_entry.insert_at_cursor(emoji);
-            }));
-            chooser.connect_hide(clone!(@weak self as obj => move |_| {
-                obj.imp().caption_entry.grab_focus();
-            }));
+            chooser.connect_emoji_picked(clone!(
+                #[weak(rename_to = obj)]
+                self,
+                move |_, emoji| {
+                    obj.imp().caption_entry.insert_at_cursor(emoji);
+                }
+            ));
+            chooser.connect_hide(clone!(
+                #[weak(rename_to = obj)]
+                self,
+                move |_| {
+                    obj.imp().caption_entry.grab_focus();
+                }
+            ));
             *emoji_chooser = Some(chooser);
         }
         emoji_chooser.as_ref().unwrap().popup();

@@ -96,9 +96,13 @@ mod imp {
 
             obj.setup_bindings();
 
-            utils::spawn(clone!(@weak obj => async move {
-                obj.calculate_cache_size().await;
-            }));
+            utils::spawn(clone!(
+                #[weak]
+                obj,
+                async move {
+                    obj.calculate_cache_size().await;
+                }
+            ));
         }
     }
 
@@ -110,7 +114,8 @@ mod imp {
 
 glib::wrapper! {
     pub(crate) struct PreferencesWindow(ObjectSubclass<imp::PreferencesWindow>)
-        @extends gtk::Widget, gtk::Window, adw::Window, adw::PreferencesWindow;
+    @extends gtk::Widget, gtk::Window, adw::Window, adw::PreferencesWindow,
+    @implements gtk::Accessible, gtk::Buildable, gtk::ConstraintTarget, gtk::Native, gtk::Root, gtk::ShortcutManager;
 }
 
 impl PreferencesWindow {
@@ -142,8 +147,10 @@ impl PreferencesWindow {
 
         // 'Dark theme' switch state handling
         let follow_system_colors_switch = &*imp.follow_system_colors_switch;
-        imp.dark_theme_switch.connect_active_notify(
-            clone!(@weak follow_system_colors_switch => move |switch| {
+        imp.dark_theme_switch.connect_active_notify(clone!(
+            #[weak]
+            follow_system_colors_switch,
+            move |switch| {
                 if !follow_system_colors_switch.is_active() {
                     let style_manager = adw::StyleManager::default();
                     let settings = gio::Settings::new(config::APP_ID);
@@ -157,8 +164,8 @@ impl PreferencesWindow {
                         settings.set_string("color-scheme", "light").unwrap();
                     }
                 }
-            }),
-        );
+            }
+        ));
 
         // Make the 'Dark theme' switch insensitive if the 'Follow system colors'
         // switch is active

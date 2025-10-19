@@ -78,10 +78,13 @@ mod imp {
             let obj = self.obj();
             obj.set_overflow(gtk::Overflow::Hidden);
 
-            self.picture
-                .connect_paintable_notify(clone!(@weak obj => move |_| {
+            self.picture.connect_paintable_notify(clone!(
+                #[weak]
+                obj,
+                move |_| {
                     obj.notify("paintable");
-                }));
+                }
+            ));
         }
 
         fn dispose(&self) {
@@ -127,7 +130,8 @@ mod imp {
 
 glib::wrapper! {
     pub(crate) struct MediaPicture(ObjectSubclass<imp::MediaPicture>)
-        @extends gtk::Widget;
+    @extends gtk::Widget,
+    @implements gtk::Accessible, gtk::Buildable, gtk::ConstraintTarget;
 }
 
 impl MediaPicture {

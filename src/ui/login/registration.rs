@@ -176,26 +176,38 @@ impl Registration {
 
         dialog.choose(
             gio::Cancellable::NONE,
-            clone!(@weak self as obj => move |response| {
-                if response == "no" {
-                    // If the user declines the ToS, don't proceed and just stay in
-                    // the view but unfreeze it again.
-                    obj.freeze(false);
-                } else if response == "yes" {
-                    // User has accepted the ToS, so we can proceed in the login
-                    // flow.
-                    utils::spawn(clone!(@weak obj => async move {
-                        obj.next().await;
-                    }));
+            clone!(
+                #[weak(rename_to = obj)]
+                self,
+                move |response| {
+                    if response == "no" {
+                        // If the user declines the ToS, don't proceed and just stay in
+                        // the view but unfreeze it again.
+                        obj.freeze(false);
+                    } else if response == "yes" {
+                        // User has accepted the ToS, so we can proceed in the login
+                        // flow.
+                        utils::spawn(clone!(
+                            #[weak]
+                            obj,
+                            async move {
+                                obj.next().await;
+                            }
+                        ));
+                    }
                 }
-            }),
+            ),
         );
     }
 
     pub(crate) fn focus_first_name_entry_row(&self) {
-        glib::idle_add_local_once(clone!(@weak self as obj => move || {
-            obj.imp().first_name_entry_row.grab_focus();
-        }));
+        glib::idle_add_local_once(clone!(
+            #[weak(rename_to = obj)]
+            self,
+            move || {
+                obj.imp().first_name_entry_row.grab_focus();
+            }
+        ));
     }
 
     fn freeze(&self, freeze: bool) {
