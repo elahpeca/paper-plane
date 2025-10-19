@@ -174,32 +174,32 @@ impl Application {
     }
 
     fn show_about_dialog(&self) {
-        let about = self.application().about_window();
-
-        about.set_transient_for(Some(&self.main_window()));
-        about.set_application_name("Paper Plane");
-        about.set_application_icon(Some(config::APP_ID));
-        about.set_version(config::VERSION);
-        about.set_website("https://github.com/paper-plane-developers/paper-plane");
-        about.set_issue_url("https://github.com/paper-plane-developers/paper-plane/issues");
-        about.set_support_url("https://t.me/paperplanechat");
-        about.set_developer_name(&gettext("Paper Plane developers"));
-        about.set_copyright("© 2021–2023 Marco Melorio");
-        about.set_license_type(gtk::License::Gpl30);
-        about.set_developers(&[
-            "Karol Lademan https://github.com/karl0d",
-            "Marco Melorio (orig. author) https://github.com/melix99",
-            "Marcus Behrendt https://github.com/marhkb",
-            "Yuri Izmer https://github.com/yuraiz",
-        ]);
-        about.set_designers(&[
-            "Marco Melorio https://github.com/melix99",
-            "Yuri Izmer https://github.com/yuraiz",
-        ]);
-        about.set_artists(&[
-            "Mateus Santos https://github.com/swyknox",
-            "noëlle https://github.com/jannuary",
-        ]);
+        let about = adw::AboutWindow::builder()
+            .transient_for(&self.main_window())
+            .application_name("Paper Plane")
+            .application_icon(config::APP_ID)
+            .version(config::VERSION)
+            .website("https://github.com/paper-plane-developers/paper-plane")
+            .issue_url("https://github.com/paper-plane-developers/paper-plane/issues")
+            .support_url("https://t.me/paperplanechat")
+            .developer_name(gettext("Paper Plane developers"))
+            .copyright("© 2021–2023 Marco Melorio")
+            .license_type(gtk::License::Gpl30)
+            .developers([
+                "Karol Lademan https://github.com/karl0d",
+                "Marco Melorio (orig. author) https://github.com/melix99",
+                "Marcus Behrendt https://github.com/marhkb",
+                "Yuri Izmer https://github.com/yuraiz",
+            ])
+            .designers([
+                "Marco Melorio https://github.com/melix99",
+                "Yuri Izmer https://github.com/yuraiz",
+            ])
+            .artists([
+                "Mateus Santos https://github.com/swyknox",
+                "noëlle https://github.com/jannuary",
+            ])
+            .build();
 
         about.add_acknowledgement_section(
             Some(&gettext("Sponsors")),
