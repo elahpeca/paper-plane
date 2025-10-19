@@ -116,8 +116,8 @@ impl Avatar {
         user_signal_group.connect_notify_local(
             Some("type"),
             clone!(
-                #[weak]
-                obj,
+                #[weak(rename_to = obj)]
+                self,
                 move |_, _| {
                     obj.update_display_name();
                     obj.update_avatar();
@@ -127,8 +127,8 @@ impl Avatar {
         user_signal_group.connect_notify_local(
             Some("first-name"),
             clone!(
-                #[weak]
-                obj,
+                #[weak(rename_to = obj)]
+                self,
                 move |_, _| {
                     obj.update_display_name();
                 }
@@ -137,8 +137,8 @@ impl Avatar {
         user_signal_group.connect_notify_local(
             Some("last-name"),
             clone!(
-                #[weak]
-                obj,
+                #[weak(rename_to = obj)]
+                self,
                 move |_, _| {
                     obj.update_display_name();
                 }
@@ -147,8 +147,8 @@ impl Avatar {
         user_signal_group.connect_notify_local(
             Some("avatar"),
             clone!(
-                #[weak]
-                obj,
+                #[weak(rename_to = obj)]
+                self,
                 move |_, _| {
                     obj.update_avatar();
                 }
@@ -160,22 +160,23 @@ impl Avatar {
         chat_signal_group.connect_notify_local(
             Some("title"),
             clone!(
-                #[weak]
-                obj,
-                move |_, _| { obj.update_display_name() }
+                #[weak(rename_to = obj)]
+                self,
+                move |_, _| {
+                    obj.update_display_name();
+                }
             ),
         );
         chat_signal_group.connect_notify_local(
             Some("avatar"),
             clone!(
-                #[weak]
-                obj,
+                #[weak(rename_to = obj)]
+                self,
                 move |_, _| {
                     obj.update_avatar();
                 }
             ),
         );
-
         imp.chat_signal_group.set(chat_signal_group).unwrap();
     }
 
